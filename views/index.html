@@ -1,0 +1,65 @@
+{{ block "index" . }}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Go-htmx</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale-1">
+        <link rel="stylesheet" href="index.css">
+        <script src="htmx.min.js"></script>
+    </head>
+    <body>
+        {{ template "form" .Form }}
+        <hr>
+        {{ template "contacts" .Data }}
+    </body>
+    <script src="index.js"></script>
+</html>
+{{ end }}
+
+{{ block "form" . }}
+<form id="contact-form" hx-post="/contact" hx-swap-oob="true">
+    <label for="name">
+        name
+        <input type="text" name="name" {{ if .Values.name }} value="{{ .Values.name }}" {{ end }}>
+    </label>
+    
+    <label for="email">
+        email
+        <input type="email" name="email" {{ if .Values.email }} value="{{ .Values.email }}" {{ end }}>
+        {{ if .Errors.email }}
+            <div class="form-error">{{ .Errors.email }}</div>
+        {{ end }}
+    </label>
+    <input type="submit" value="Create contact">
+</form>
+{{ end }}
+
+{{ block "contacts" . }}
+<ul id="contacts">
+    {{ range .Contacts }}
+        {{ template "contact" . }}
+    {{ end }}
+</ul>
+{{ end }}
+
+{{ block "contact" . }}
+<li class="contact">
+    <div>
+        <span>{{ .Name }}</span>
+        <span> - </span>
+        <span>{{ .Email }}</span>
+    </div>
+    <button class="error" hx-delete="/contacts?email={{ .Email }}" hx-target="closest .contact">rimuovi</button>
+</li>
+{{ end }}
+
+{{ block "error-popup" . }}
+<dialog open>
+    <h3>{{ .ErrorTitle }}</h3>
+    <p><span style="color:darkred;font-weight:bold;">[{{ .ErrorStatus }}]: </span>{{ .ErrorMessage }}</p>
+    <div class="popup-buttons">
+        <button onclick="closePopup()">ok</button>
+    </div>
+</dialog>
+{{ end }}
